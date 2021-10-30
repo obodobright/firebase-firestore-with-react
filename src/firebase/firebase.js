@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "@firebase/app";
 import { getFirestore } from "firebase/firestore";
+
 const firebaseConfig = {
     apiKey: "AIzaSyBZgxRyE8Gu6axpvL4mChYos8dQmeKpmMo",
     authDomain: "swift-yew-310603.firebaseapp.com",
@@ -9,6 +10,5 @@ const firebaseConfig = {
     appId: "1:503878089038:web:783b18b42cc247b99d061f",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export default getFirestore();

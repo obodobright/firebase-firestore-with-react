@@ -1,0 +1,151 @@
+Create REference
+-----------version 9----------------------
+import { getStorage, ref } from "firebase/storage";
+
+// Get a reference to the storage service, which is used to create references in your storage bucket
+const storage = getStorage();
+
+// Create a storage reference from our storage service
+const storageRef = ref(storage);
+ -------version 8 ---------------
+// Get a reference to the storage service, which is used to create references in your storage bucket
+var storage = firebase.storage();
+
+// Create a storage reference from our storage service
+var storageRef = storage.ref();
+
+
+import { getStorage, ref } from "firebase/storage";
+
+const storage = getStorage();
+
+// Create a child reference
+const imagesRef = ref(storage, 'images');
+// imagesRef now points to 'images'
+
+// Child references can also take paths delimited by '/'
+const spaceRef = ref(storage, 'images/space.jpg');
+// spaceRef now points to "images/space.jpg"
+// imagesRef still points to "images"
+
+NAVIGATE WITH REFENCENCE
+import { getStorage, ref } from "firebase/storage";
+
+const storage = getStorage();
+const spaceRef = ref(storage, 'images/space.jpg');
+
+// Parent allows us to move to the parent of a reference
+const imagesRef = spaceRef.parent;
+// imagesRef now points to 'images'
+
+// Root allows us to move all the way back to the top of our bucket
+const rootRef = spaceRef.root;
+// rootRef now points to the root
+
+
+UPLOAD A FILE 
+---------------version 9--------------
+import { getStorage, ref } from "firebase/storage";
+
+// Create a root reference
+const storage = getStorage();
+
+// Create a reference to 'mountains.jpg'
+const mountainsRef = ref(storage, 'mountains.jpg');
+
+// Create a reference to 'images/mountains.jpg'
+const mountainImagesRef = ref(storage, 'images/mountains.jpg');
+
+// While the file names are the same, the references point to different files
+mountainsRef.name === mountainImagesRef.name;           // true
+mountainsRef.fullPath === mountainImagesRef.fullPath;   // false 
+
+
+-----------version 8-------------
+// Create a root reference
+var storageRef = firebase.storage().ref();
+
+// Create a reference to 'mountains.jpg'
+var mountainsRef = storageRef.child('mountains.jpg');
+
+// Create a reference to 'images/mountains.jpg'
+var mountainImagesRef = storageRef.child('images/mountains.jpg');
+
+// While the file names are the same, the references point to different files
+mountainsRef.name === mountainImagesRef.name;           // true
+mountainsRef.fullPath === mountainImagesRef.fullPath;   // false 
+
+MONITOR UPLOAD
+------version 8---------
+var uploadTask = storageRef.child('images/rivers.jpg').put(file);
+
+// Register three observers:
+// 1. 'state_changed' observer, called any time the state changes
+// 2. Error observer, called on failure
+// 3. Completion observer, called on successful completion
+uploadTask.on('state_changed', 
+  (snapshot) => {
+    // Observe state change events such as progress, pause, and resume
+    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    console.log('Upload is ' + progress + '% done');
+    switch (snapshot.state) {
+      case firebase.storage.TaskState.PAUSED: // or 'paused'
+        console.log('Upload is paused');
+        break;
+      case firebase.storage.TaskState.RUNNING: // or 'running'
+        console.log('Upload is running');
+        break;
+    }
+  }, 
+  (error) => {
+    // Handle unsuccessful uploads
+  }, 
+  () => {
+    // Handle successful uploads on complete
+    // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+      console.log('File available at', downloadURL);
+    });
+  }
+);
+
+
+------------version 9 ---------------
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
+const storage = getStorage();
+const storageRef = ref(storage, 'images/rivers.jpg');
+
+const uploadTask = uploadBytesResumable(storageRef, file);
+
+// Register three observers:
+// 1. 'state_changed' observer, called any time the state changes
+// 2. Error observer, called on failure
+// 3. Completion observer, called on successful completion
+uploadTask.on('state_changed', 
+  (snapshot) => {
+    // Observe state change events such as progress, pause, and resume
+    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    console.log('Upload is ' + progress + '% done');
+    switch (snapshot.state) {
+      case 'paused':
+        console.log('Upload is paused');
+        break;
+      case 'running':
+        console.log('Upload is running');
+        break;
+    }
+  }, 
+  (error) => {
+    // Handle unsuccessful uploads
+  }, 
+  () => {
+    // Handle successful uploads on complete
+    // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+      console.log('File available at', downloadURL);
+    });
+  }
+);
